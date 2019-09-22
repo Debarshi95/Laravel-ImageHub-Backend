@@ -6,6 +6,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
@@ -21,9 +22,9 @@ class AuthController extends Controller
         ]);
         if ($validation->fails()) {
             return response()->json([
-                'message' => 'Registration failed',
-                'error' => $validation->errors()
-            ], 404);
+                'message' => 'All fields are required',
+                'errors' => $validation->errors()
+            ], 422);
         }
         $user = User::create([
             'firstname' => $request->get('firstname'),
@@ -39,6 +40,36 @@ class AuthController extends Controller
             'token' => $token
         ], 201);
     }
+
+    public function login(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string', 'min:6']
+        ]);
+        if ($validation->fails()) {
+            return response()->json([
+                'message' => 'All fields are required',
+                'errors' => $validation->errors()
+            ], 422);
+        }
+        $credentials = $request->only('email', 'password');
+        try {
+            if (!$token = JWTAuth::attempt($credentials)) {
+                return response()->json([
+                    'message' => 'Invalid credentials'
+                ], 400);
+            }
+        } catch (JWTException $e) {
+            return response()->json([
+                'message' => 'Some error occured in server. Pl try again'
+            ], 500);
+        }
+        return response()->json([
+            'token' => $token
+        ], 200);
+    }
+
     public function validateUser()
     {
         try {
