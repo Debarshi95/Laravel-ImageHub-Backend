@@ -7,7 +7,9 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller
@@ -27,13 +29,9 @@ class ResetPasswordController extends Controller
 
 
         //calling and Token from createToken method
-        $token = $this->createToken($email);
-
-        //calling saveToken Method
-        $this->saveToken($token, $email);
-
+        $tokenObj = $this->createToken($email);
         //sending mail and token to mailable
-        Mail::to($email)->send(new ResetPasswordMail($token));
+        Mail::to($email)->send(new ResetPasswordMail($tokenObj->token));
 
         //Returning the response
         return response()->json([
@@ -56,6 +54,9 @@ class ResetPasswordController extends Controller
         }
 
         $token = Str::random(60);
+        //calling saveToken Method
+        $this->saveToken($token, $email);
+
         return $token;
     }
 
@@ -67,5 +68,40 @@ class ResetPasswordController extends Controller
             'token' => $token,
             'created_at' => Carbon::now()
         ]);
+    }
+
+    //Process the request for token and other fields
+    public function process(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'resetToken' => ['required'],
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string', 'min:6'],
+            'password_confirmation' => ['required', 'string', 'min:6', 'same:password']
+        ]);
+        if ($validation->fails()) {
+            return response()->json([
+                'message' => 'All fields are required',
+                'errors' => $validation->errors()
+            ]);
+        }
+
+        $match = DB::table('password_resets')->where('token', $request->get('resetToken'))->first();
+        if ($match) {
+            return $this->changePassword($request);
+        }
+        return response()->json([
+            'message' => 'Token didnot match. Pl try again'
+        ], 404);
+    }
+
+    //Changing the existing password and saving it to DB
+    public function changePassword(Request $request)
+    {
+        $user = User::whereEmail($request->get('email'));
+        $user->update(['password' => Hash::make($request->get('password_confirmation'))]);
+        return response()->json([
+            'message' => 'Password changed successfully. Login with your new password to continue'
+        ], 200);
     }
 }

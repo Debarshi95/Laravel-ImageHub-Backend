@@ -3,7 +3,7 @@
 
 Click on the link or button to reset your password
 
-@component('mail::button', ['url' => 'http:://localhost:4200/resetpassword?token='.$token])
+@component('mail::button', ['url' => 'http://localhost:4200/changepassword?token='.$token])
 Click Here to reset your password
 @endcomponent
 

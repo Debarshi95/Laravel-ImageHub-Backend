@@ -25,9 +25,5 @@ Route::get('download', function () {
     return response($url);
 });
 Route::post('/resetPassword', 'ResetPasswordController@sendEmail');
-Route::get('/check', function () {
-    $email = "test@test.com";
-    // $oldToken = DB::table('password_resets')->where('email', $email)->first();
-    $oldToken = Str::random(60);
-    dd($oldToken);
-});
+Route::get('/check', 'ResetPasswordController@createToken');
+Route::post('/changePassword', 'ResetPasswordController@process');
