@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\ResetPasswordMail;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class ResetPasswordController extends Controller
@@ -17,6 +18,7 @@ class ResetPasswordController extends Controller
             ], 404);
         }
         $token = str_random(60);
+        $this->saveToken($token);
         Mail::to($request->get('email'))->send(new ResetPasswordMail($token));
         return response()->json([
             'message' => 'Mail sent successfully. Check your inbox'
@@ -26,5 +28,10 @@ class ResetPasswordController extends Controller
     public function validateEmail($email)
     {
         return !!User::where('email', $email)->first();
+    }
+
+    public function saveToken($token)
+    {
+        DB::table('reset');
     }
 }
