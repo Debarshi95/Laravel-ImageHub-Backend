@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +18,16 @@ use Illuminate\Http\Request;
 Route::post('register', 'AuthController@register');
 Route::post('login', 'AuthController@login');
 Route::post('upload', 'ImageController@store');
+Route::get('images', 'ImageController@index');
+Route::get('download', function () {
+    //PDF file is stored under project/public/download/info.pdf
+    $url = url('storage/upload/GeuEyHE4M78J2opzrNMaxs2fnsWF10n1ZD1ZtOPW.jpeg');
+    return response($url);
+});
+Route::post('/resetPassword', 'ResetPasswordController@sendEmail');
+Route::get('/check', function () {
+    $email = "test@test.com";
+    // $oldToken = DB::table('password_resets')->where('email', $email)->first();
+    $oldToken = Str::random(60);
+    dd($oldToken);
+});

@@ -20,6 +20,7 @@ class CreateImagesTable extends Migration
             $table->string('filename');
             $table->string('mime');
             $table->string('original_filename');
+            $table->string('url');
             $table->timestamps();
         });
     }
