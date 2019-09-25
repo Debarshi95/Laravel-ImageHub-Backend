@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ResetPasswordMail;
+use App\Rules\ResetToken;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -74,7 +75,7 @@ class ResetPasswordController extends Controller
     public function process(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            'resetToken' => ['required'],
+            'resetToken' => [new ResetToken],
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string', 'min:6'],
             'password_confirmation' => ['required', 'string', 'min:6', 'same:password']

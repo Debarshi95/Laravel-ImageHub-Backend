@@ -25,7 +25,7 @@ class ResetToken implements Rule
      */
     public function passes($attribute, $value)
     {
-        //
+        return $value = request()->get('resetToken');
     }
 
     /**
@@ -35,6 +35,6 @@ class ResetToken implements Rule
      */
     public function message()
     {
-        return 'The validation error message.';
+        return 'Token not present. Pl try again.';
     }
 }
