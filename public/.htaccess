@@ -3,6 +3,7 @@
         Options -MultiViews -Indexes
     </IfModule>
 
+
     RewriteEngine On
 
     # Handle Authorization Header
@@ -18,4 +19,5 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
 </IfModule>
