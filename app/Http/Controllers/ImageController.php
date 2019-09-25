@@ -11,7 +11,12 @@ class ImageController extends Controller
 {
     public function __construct()
     {
-        return $this->middleware('jwt');
+        return $this->middleware('jwt')->except(['index']);
+    }
+
+    public function index(Request $request)
+    {
+        return $request->all();
     }
     public function store(Request $request)
     {

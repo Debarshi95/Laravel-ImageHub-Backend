@@ -17,7 +17,16 @@ class ResetPasswordController extends Controller
 {
     public function sendEmail(Request $request)
     {
+        $validation = Validator::make($request->all(), [
+            'email' => ['required', 'string', 'email']
+        ]);
 
+        if ($validation->fails()) {
+            return response()->json([
+                'message' => 'Email is required',
+                'errors' => $validation->errors()
+            ], 422);
+        }
         //Getting Email from request
         $email = $request->get('email');
 
@@ -84,7 +93,7 @@ class ResetPasswordController extends Controller
             return response()->json([
                 'message' => 'All fields are required',
                 'errors' => $validation->errors()
-            ]);
+            ], 422);
         }
 
         $match = DB::table('password_resets')->where('token', $request->get('resetToken'))->first();
