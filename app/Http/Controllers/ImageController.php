@@ -17,7 +17,7 @@ class ImageController extends Controller
 
     public function index()
     {
-        $images = Image::all();
+        $images = Image::latest('created_at')->get();
         return response()->json([
             'images' => $images,
         ], 200);
