@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -18,11 +17,10 @@ class ImageController extends Controller
 
     public function index()
     {
-        $headers = array(
-            'Content-Type' => 'image/png',
-        );
-        $file = file_get_contents('storage/uploads/1569416738.Devi.jpg');
-        return response($file, $headers);
+        $images = Image::all();
+        return response()->json([
+            'images' => $images,
+        ], 200);
     }
     public function store(Request $request)
     {
@@ -48,10 +46,11 @@ class ImageController extends Controller
             $image = Image::create([
                 'caption' => $request->get('caption'),
                 'user_id' => Auth::user()->id,
+                'username' => Auth::user()->firstname,
                 'filename' => $file->getFileName(),
                 'mime' => $mime,
                 'original_filename' => $name,
-                'url' => asset($path)
+                'url' => url('/storage' . '/' . $path)
             ]);
 
             return response()->json([
