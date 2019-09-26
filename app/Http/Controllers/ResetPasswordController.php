@@ -39,9 +39,9 @@ class ResetPasswordController extends Controller
 
 
         //calling and Token from createToken method
-        $tokenObj = $this->createToken($email);
+        $token = $this->createToken($email);
         //sending mail and token to mailable
-        Mail::to($email)->send(new ResetPasswordMail($tokenObj->token));
+        Mail::to($email)->send(new ResetPasswordMail($token));
 
         //Returning the response
         return response()->json([
@@ -60,7 +60,7 @@ class ResetPasswordController extends Controller
     {
         $oldToken = DB::table('password_resets')->where('email', $email)->first();
         if ($oldToken) {
-            return $oldToken;
+            return $oldToken->token;
         }
 
         $token = Str::random(60);
@@ -96,12 +96,13 @@ class ResetPasswordController extends Controller
             ], 422);
         }
 
-        $match = DB::table('password_resets')->where('token', $request->get('resetToken'))->first();
-        if ($match) {
+        $matchedToken = DB::table('password_resets')->where('token', $request->get('resetToken'))->first();
+        $matchedEmail = DB::table('password_resets')->where('email', $request->get('email'))->first();
+        if ($matchedToken && $matchedEmail) {
             return $this->changePassword($request);
         }
         return response()->json([
-            'message' => 'Token didnot match. Pl try again'
+            'message' => 'Token or Email didnot match. Pl try again'
         ], 404);
     }
 
